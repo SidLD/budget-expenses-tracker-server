@@ -20,7 +20,22 @@ export const register = async (req: any, res: any) => {
         password: hashedPassword,
         expenses: []
       })
-      res.status(200).send({newUser})
+        const payload = {
+            id: newUser._id,
+            role: newUser.username,
+        };
+        jwt.sign(
+            payload,
+            `${process.env.JWT_SECRET}`,
+            { expiresIn: "12hr" },
+            async (err, token) => {
+                if(err){
+                    res.status(400).send({message: err.message})
+                }else{
+                    res.status(200).send({token: token})
+                }
+            }
+        )  
 
     } catch (error: any) {
         console.log(error.message)
