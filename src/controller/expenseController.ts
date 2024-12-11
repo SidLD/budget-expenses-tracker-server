@@ -47,13 +47,12 @@ export const getExpenses = async (req: any, res: any) => {
 // 3. Update Expense (Update)
 export const updateExpense = async (req: any, res: any) => {
     const { expenseId } = req.params;
-    const { value, date, description } = req.body;
-
+    const { amount, date, description } = req.body;
     try {
         // Find the specific expense entry by its ID and update it
         const expense: IExpenses | null = await Expense.findOneAndUpdate(
             { _id: expenseId },
-            { value, date , description},
+            { value: amount, date , description},
             { new: true } // Return the updated expense
         );
 
