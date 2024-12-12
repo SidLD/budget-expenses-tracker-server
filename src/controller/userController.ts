@@ -8,19 +8,38 @@ import Expense from "../models/expenseSchema";
 export const register = async (req: any, res: any) => {
     try {
         const { username, password } = req.body;
-      
+        
         const user:IUser | null = await User.findOne({username})
+        if(user){
+            return res.status(400).json({ error: 'User Already Exist' });
+        }
+        else {
 
-      if(user){
-        return res.status(400).json({ error: 'User Already Exist' });
+        console.log('asd')
+        const hashedPassword = await bcrypt.hash(password, 10)
+        const newUser = await User.create({
+          username: username,
+          password: hashedPassword,
+          expenses: []
+        },)
+        
+        const payload = {
+            id: newUser._id,
+            role: newUser.username,
+        };
+        jwt.sign(
+            payload,
+            `${process.env.JWT_SECRET}`,
+            { expiresIn: "12hr" },
+            async (err, token) => {
+                if(err){
+                    res.status(400).send({message: err.message})
+                }else{
+                    res.status(200).send({token: token})
+                }
+            }
+        )  
       }
-      const hashedPassword = await bcrypt.hash(password, 10)
-      const newUser = await User.create({
-        username: username,
-        password: hashedPassword,
-        expenses: []
-      })
-      res.status(200).send({newUser})
 
     } catch (error: any) {
         console.log(error.message)
